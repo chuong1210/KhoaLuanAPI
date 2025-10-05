@@ -1,0 +1,6 @@
+@KhoaLuanTotNghiepAPI_HostAddress = http://localhost:5049
+
+GET {{KhoaLuanTotNghiepAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
