@@ -17,7 +17,6 @@ namespace KhoaLuanTotNghiepAPI.Controllers
         }
 
         [HttpGet("active")]
-        [AllowAnonymous]
         public async Task<IActionResult> GetActiveBanners([FromQuery] string bannerType, CancellationToken cancellationToken)
         {
             var result = await _bannerService.GetActiveBannersAsync(bannerType, cancellationToken);

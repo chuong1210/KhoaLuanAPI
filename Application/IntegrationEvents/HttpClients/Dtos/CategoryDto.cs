@@ -8,9 +8,9 @@ namespace Application.IntegrationEvents.HttpClients.Dtos
 {
     public class CategoryDto
     {
-        public string Id { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public string Code { get; set; } = string.Empty;
+        public string Id { get; set; }
+        public string CategoryName { get; set; }
+        public string CategoryCode { get; set; }
     }
 
 }

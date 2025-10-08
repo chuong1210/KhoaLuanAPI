@@ -8,7 +8,7 @@ namespace Application.Responses.Interfaces
 {
     public interface IResult<T>
     {
-        T Data { get; set; }
+        T result { get; set; }
 
         List<string> Messages { get; set; }
 

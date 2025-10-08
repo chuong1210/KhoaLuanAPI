@@ -1,118 +1,175 @@
-﻿using Application.IntegrationEvents.HttpClients;
-using Application.IntegrationEvents.HttpClients.Interfaces;
+﻿
+
+using Application.Services;
 using Application.IntegrationEvents.Incoming;
-using Application.IntegrationEvents.MessageBroker;
-using Application.IntegrationEvents.MessageBroker.EventHandlers;
-using Application.IntegrationEvents.MessageBroker.Kafka.Interfaces;
-using Application.IntegrationEventss.MessageBroker.Kafka;
-using Application.Interfaces.Identity;
-using KhoaLuanTotNghiepAPI.Middleware;
-using KhoaLuanTotNghiepAPI.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using System.Text;
 using Polly;
 using Polly.Extensions.Http;
-using System.Text;
+using Infrastructure.Repositories;
+using Application.Cache.Interfaces;
+using System.Text.Json.Serialization;
+using Application.Interfaces.Services;
+using Application.Interfaces.Identity;
 using Infrastructure;
+using Infrastructure.IntegrationEvents;
+using Infrastructure.IntegrationEvents.MessageBroker;
+using Application.IntegrationEvents.HttpClients.Interfaces;
+using Application.IntegrationEvents.HttpClients;
+using Application.IntegrationEvents.HttpClients.Dtos;
+
+
+using Infrastructure.IntegrationEvents.MessageBroker.EventHandlers;
+using Infrastructure.Configurations ;
+using Infrastructure.IntegrationEvents.MessageBroker.Kafka.Interfaces;
+using Infrastructure.IntegrationEvents.MessageBroker.Kafka;
+
+
+
+using Application.Cache;
+using KhoaLuanTotNghiepAPI.Services;
+using Application.Interfaces.MessageBroker;
+using Microsoft.AspNetCore.Diagnostics;
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ============ SERVICES CONFIGURATION ============
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Controllers with JSON options
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
+// API Explorer & Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddApplicationServices();
-// Swagger Configuration
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
-        Title = "Khoa Luan Tot Nghiep API",
+        Title = "Shop Service API",
         Version = "v1",
-        Description = "API for E-commerce platform similar to Shopee"
+        Description = "Microservices API for Shop, Banner, Cart, Transfer management"
     });
 
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using Bearer scheme",
+        Description = "JWT Authorization header using Bearer scheme. Example: 'Bearer {token}'",
         Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
                 {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
-                });
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
+
 // HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
+
+// Current User Service
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+// PostgreSQL Database
+builder.Services.AddDbContext<ShopDbContext>(options =>
+{
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        npgsqlOptions =>
+        {
+            npgsqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 3,
+                maxRetryDelay: TimeSpan.FromSeconds(5),
+                errorCodesToAdd: null);
+            npgsqlOptions.CommandTimeout(30);
+            npgsqlOptions.MigrationsAssembly(typeof(ShopDbContext).Assembly.FullName);
+        });
+
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+        options.EnableDetailedErrors();
+    }
+});
+
+
+//if (builder.Environment.IsDevelopment())
+//{
+//    builder.Services.AddDbContext<ShopDbContext>(options =>
+//    {
+//        options.EnableSensitiveDataLogging();
+//        options.EnableDetailedErrors();
+//    });
+//}
+// Redis Cache
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis");
     options.InstanceName = "ShopService_";
 });
-// Database
-builder.Services.AddDbContext<ShopDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        //ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")),
-        b => b.MigrationsAssembly(typeof(ShopDbContext).Assembly.FullName)));
 
-// CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
+// Cache Service
+builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 
-
-// HTTP Clients with Polly
+// HTTP Clients with Polly (Circuit Breaker + Retry)
 builder.Services.AddHttpClient<IProductServiceClient, ProductServiceClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ServiceUrls:ProductService"]);
     client.Timeout = TimeSpan.FromSeconds(10);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
 })
-.AddTransientHttpErrorPolicy(policy =>
-    policy.WaitAndRetryAsync(3, retryAttempt =>
-        TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))))
-.AddTransientHttpErrorPolicy(policy =>
-    policy.CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
+.AddPolicyHandler(GetRetryPolicy())
+.AddPolicyHandler(GetCircuitBreakerPolicy());
 
-// Message Broker (Kafka)
+builder.Services.AddHttpClient<IProfileServiceClient, ProfileServiceClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ServiceUrls:ProfileService"]);
+    client.Timeout = TimeSpan.FromSeconds(10);
+})
+.AddPolicyHandler(GetRetryPolicy())
+.AddPolicyHandler(GetCircuitBreakerPolicy());
+
+// Kafka Event Bus
 builder.Services.AddSingleton<IEventBus, KafkaEventBus>();
-builder.Services.AddHostedService<KafkaConsumerHostedService>();
+//builder.Services.AddHostedService<KafkaConsumerHostedService>();
 
 // Event Handlers
 builder.Services.AddScoped<IEventHandler<ProductUpdatedEvent>, ProductEventHandler>();
+builder.Services.AddScoped<IEventHandler<ProductDeletedEvent>, ProductEventHandler>();
 builder.Services.AddScoped<IEventHandler<OrderShopCompletedEvent>, OrderEventHandler>();
-// Authentication & Authorization
+builder.Services.AddScoped<IEventHandler<OrderShopCancelledEvent>, OrderEventHandler>();
+builder.Services.AddScoped<IEventHandler<AddressUpdatedEvent>, AddressEventHandler>();
+
+
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices (builder.Configuration);
+
+
+// AutoMapper
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+// Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
@@ -121,42 +178,138 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+            ClockSkew = TimeSpan.Zero
         };
     });
 
+// Authorization
 builder.Services.AddAuthorization();
-var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.WithOrigins(builder.Configuration.GetSection("AllowedOrigins").Get<string[]>())
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
+//// Health Checks
+//builder.Services.AddHealthChecks()
+//    .AddNpgSql(
+//        builder.Configuration.GetConnectionString("PostgreSQL"),
+//        name: "postgresql",
+//        tags: new[] { "db", "postgresql" })
+//    .AddRedis(
+//        builder.Configuration.GetConnectionString("Redis"),
+//        name: "redis",
+//        tags: new[] { "cache", "redis" })
+//    .AddUrlGroup(
+//        new Uri(builder.Configuration["ServiceUrls:ProductService"] + "/health"),
+//        name: "product-service",
+//        tags: new[] { "services" })
+//    .AddUrlGroup(
+//        new Uri(builder.Configuration["ServiceUrls:ProfileService"] + "/health"),
+//        name: "profile-service",
+//        tags: new[] { "services" });
+// Logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+var app = builder.Build();
+// Always enable Swagger
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Shop Service API V1");
+    //c.RoutePrefix = string.Empty; // Swagger UI tại URL gốc "/"
+});
+// ============ MIDDLEWARE PIPELINE ============
+
+// Global Exception Handler
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        var error = context.Features.Get<IExceptionHandlerFeature>();
+        if (error != null)
+        {
+            var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+            logger.LogError(error.Error, "Unhandled exception occurred");
+
+            await context.Response.WriteAsJsonAsync(new
+            {
+                succeeded = false,
+                code = 500,
+                messages = new[] { "An internal server error occurred" }
+            });
+        }
+    });
+});
+
+// Swagger
+if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Shop Service API V1");
+        c.RoutePrefix = string.Empty;
+    });
 }
 
-app.UseHttpsRedirection();
-
-app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthentication();
-
 app.UseAuthorization();
-
 app.MapControllers();
+//app.MapHealthChecks("/health");
+
+// Database Migration (in Development only)
+//if (app.Environment.IsDevelopment())
+//{
+//    using var scope = app.Services.CreateScope();
+//    var dbContext = scope.ServiceProvider.GetRequiredService<ShopDbContext>();
+//    await dbContext.Database.MigrateAsync();
+//}
 
 app.Run();
- static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+
+// Polly Policies
+static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
 {
     return HttpPolicyExtensions
         .HandleTransientHttpError()
-        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+        .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
+        .WaitAndRetryAsync(3, retryAttempt =>
+            TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+            onRetry: (outcome, timespan, retryCount, context) =>
+            {
+                Console.WriteLine($"Retry {retryCount} after {timespan.TotalSeconds}s delay");
+            });
 }
 
- static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
+static IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
 {
     return HttpPolicyExtensions
         .HandleTransientHttpError()
-        .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30));
+        .CircuitBreakerAsync(
+            handledEventsAllowedBeforeBreaking: 5,
+            durationOfBreak: TimeSpan.FromSeconds(30),
+            onBreak: (outcome, timespan) =>
+            {
+                Console.WriteLine($"Circuit breaker opened for {timespan.TotalSeconds}s");
+            },
+            onReset: () =>
+            {
+                Console.WriteLine("Circuit breaker reset");
+            });
 }

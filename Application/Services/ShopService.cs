@@ -4,7 +4,6 @@ using Application.DTOs;
 using Application.DTOs.Shop;
 using Application.Exceptions;
 using Application.IntegrationEvents.HttpClients.Interfaces;
-using Application.IntegrationEvents.MessageBroker.Kafka.Interfaces;
 using Application.IntegrationEvents.Outgoing;
 using Application.Interfaces.Identity;
 using Application.Interfaces.Services;
@@ -17,10 +16,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Application.Interfaces.MessageBroker;
 using System.Threading.Tasks;
 namespace Application.Services
 {
-    // Application/Interfaces/IShopService.cs
   
 
     public class ShopService : IShopService

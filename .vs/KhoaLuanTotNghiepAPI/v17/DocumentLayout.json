@@ -3,24 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{0F996D5E-6322-4969-8B70-0732111E6AA1}|KhoaLuanTotNghiepAPI\\KhoaLuanTotNghiepAPI.csproj|c:\\users\\chuon\\desktop\\khoaluan\\khoaluantotnghiepapi\\khoaluantotnghiepapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0F996D5E-6322-4969-8B70-0732111E6AA1}|KhoaLuanTotNghiepAPI\\KhoaLuanTotNghiepAPI.csproj|solutionrelative:khoaluantotnghiepapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{0F996D5E-6322-4969-8B70-0732111E6AA1}|KhoaLuanTotNghiepAPI\\KhoaLuanTotNghiepAPI.csproj|c:\\users\\chuon\\desktop\\khoaluan\\khoaluantotnghiepapi\\khoaluantotnghiepapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{0F996D5E-6322-4969-8B70-0732111E6AA1}|KhoaLuanTotNghiepAPI\\KhoaLuanTotNghiepAPI.csproj|solutionrelative:khoaluantotnghiepapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{30A0D5B5-03C5-484A-B45D-FCF4721398EA}|Infrastructure\\Infrastructure.csproj|c:\\users\\chuon\\desktop\\khoaluan\\khoaluantotnghiepapi\\infrastructure\\dependencyinjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{30A0D5B5-03C5-484A-B45D-FCF4721398EA}|Infrastructure\\Infrastructure.csproj|solutionrelative:infrastructure\\dependencyinjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{0F996D5E-6322-4969-8B70-0732111E6AA1}|KhoaLuanTotNghiepAPI\\KhoaLuanTotNghiepAPI.csproj|c:\\users\\chuon\\desktop\\khoaluan\\khoaluantotnghiepapi\\khoaluantotnghiepapi\\middleware\\forbiddenexception .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0F996D5E-6322-4969-8B70-0732111E6AA1}|KhoaLuanTotNghiepAPI\\KhoaLuanTotNghiepAPI.csproj|solutionrelative:khoaluantotnghiepapi\\middleware\\forbiddenexception .cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{19BC7C42-14F1-4C54-A291-439A69620F03}|Application\\Application.csproj|c:\\users\\chuon\\desktop\\khoaluan\\khoaluantotnghiepapi\\application\\application.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
-      "RelativeMoniker": "D:0:0:{19BC7C42-14F1-4C54-A291-439A69620F03}|Application\\Application.csproj|solutionrelative:application\\application.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+      "AbsoluteMoniker": "D:0:0:{19BC7C42-14F1-4C54-A291-439A69620F03}|Application\\Application.csproj|c:\\users\\chuon\\desktop\\khoaluan\\khoaluantotnghiepapi\\application\\responses\\paginatedresult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{19BC7C42-14F1-4C54-A291-439A69620F03}|Application\\Application.csproj|solutionrelative:application\\responses\\paginatedresult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 10,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Bookmark",
@@ -66,66 +50,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\KhoaLuanTotNghiepAPI\\appsettings.json",
-              "RelativeDocumentMoniker": "KhoaLuanTotNghiepAPI\\appsettings.json",
-              "ToolTip": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\KhoaLuanTotNghiepAPI\\appsettings.json",
-              "RelativeToolTip": "KhoaLuanTotNghiepAPI\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-10-05T02:30:40.239Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "DependencyInjection.cs",
-              "DocumentMoniker": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Infrastructure\\DependencyInjection.cs",
-              "RelativeDocumentMoniker": "Infrastructure\\DependencyInjection.cs",
-              "ToolTip": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Infrastructure\\DependencyInjection.cs",
-              "RelativeToolTip": "Infrastructure\\DependencyInjection.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAABQAAABDAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T02:28:51.302Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\KhoaLuanTotNghiepAPI\\Program.cs",
-              "RelativeDocumentMoniker": "KhoaLuanTotNghiepAPI\\Program.cs",
-              "ToolTip": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\KhoaLuanTotNghiepAPI\\Program.cs",
-              "RelativeToolTip": "KhoaLuanTotNghiepAPI\\Program.cs",
-              "ViewState": "AgIAADwAAAAAAAAAAAAAAFIAAAArAAAAAAAAAA==",
+              "Title": "PaginatedResult.cs",
+              "DocumentMoniker": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Application\\Responses\\PaginatedResult.cs",
+              "RelativeDocumentMoniker": "Application\\Responses\\PaginatedResult.cs",
+              "ToolTip": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Application\\Responses\\PaginatedResult.cs",
+              "RelativeToolTip": "Application\\Responses\\PaginatedResult.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAA0AAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T02:28:33.565Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ForbiddenException .cs",
-              "DocumentMoniker": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\KhoaLuanTotNghiepAPI\\Middleware\\ForbiddenException .cs",
-              "RelativeDocumentMoniker": "KhoaLuanTotNghiepAPI\\Middleware\\ForbiddenException .cs",
-              "ToolTip": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\KhoaLuanTotNghiepAPI\\Middleware\\ForbiddenException .cs",
-              "RelativeToolTip": "KhoaLuanTotNghiepAPI\\Middleware\\ForbiddenException .cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-05T02:28:20.185Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Application",
-              "DocumentMoniker": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Application\\Application.csproj",
-              "RelativeDocumentMoniker": "Application\\Application.csproj",
-              "ToolTip": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Application\\Application.csproj",
-              "RelativeToolTip": "Application\\Application.csproj",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-10-05T02:26:06.395Z",
+              "WhenOpened": "2025-10-08T01:38:02.149Z",
               "EditorCaption": ""
             }
           ]

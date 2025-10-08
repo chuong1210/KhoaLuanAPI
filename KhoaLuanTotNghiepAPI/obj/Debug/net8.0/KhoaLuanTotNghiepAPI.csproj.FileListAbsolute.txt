@@ -115,10 +115,13 @@ C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\obj\De
 C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\obj\Debug\net8.0\KhoaLuan.93133112.Up2Date
 C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\obj\Debug\net8.0\KhoaLuanTotNghiepAPI.dll
 C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\obj\Debug\net8.0\refint\KhoaLuanTotNghiepAPI.dll
 C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\obj\Debug\net8.0\KhoaLuanTotNghiepAPI.pdb
 C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\obj\Debug\net8.0\KhoaLuanTotNghiepAPI.genruntimeconfig.cache
 C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\obj\Debug\net8.0\ref\KhoaLuanTotNghiepAPI.dll
+C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\obj\Debug\net8.0\KhoaLuanTotNghiepAPI.sourcelink.json
+C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\bin\Debug\net8.0\appsettings .Development.Development.json
+C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\bin\Debug\net8.0\appsettings .Development.json
+C:\Users\chuon\Desktop\KhoaLuan\KhoaLuanTotNghiepAPI\KhoaLuanTotNghiepAPI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

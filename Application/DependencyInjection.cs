@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Services;
+﻿using Application.Cache.Interfaces;
+using Application.Interfaces.Services;
 using Application.Profiles;
 using Application.Services;
 using AutoMapper;
@@ -8,7 +9,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Sieve.Services;
 using System;
 using System.Reflection;
-
+using Application.Cache;
 public static class DependencyInjection
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
@@ -32,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<IShopService, ShopService>();
         services.AddScoped<IBannerService, BannerService>();
         services.AddScoped<ICartService, CartService>();
+        services.AddScoped<ICacheService, RedisCacheService>();
 
         services.AddScoped<ITransferService, TransferService>();
 

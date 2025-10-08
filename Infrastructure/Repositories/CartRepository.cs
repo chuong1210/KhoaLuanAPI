@@ -40,11 +40,14 @@ namespace Infrastructure.Repositories
                     Id = Guid.NewGuid().ToString(),
                     UserProfileId = userProfileId,
                     CreatedDate = DateTime.UtcNow,
-                    UpdatedDate = DateTime.UtcNow
+                    UpdatedDate = DateTime.UtcNow,
+                    Items = new List<CartItem>()
                 };
 
                 await _context.Carts.AddAsync(cart, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
+
+                _logger.LogInformation("Created new cart {CartId} for user {UserId}", cart.Id, userProfileId);
             }
 
             return cart;
@@ -59,22 +62,91 @@ namespace Infrastructure.Repositories
             {
                 existingItem.Quantity += cartItem.Quantity;
                 existingItem.AddedDate = DateTime.UtcNow;
-                // Update cached info
                 existingItem.CachedProductName = cartItem.CachedProductName;
                 existingItem.CachedProductImage = cartItem.CachedProductImage;
                 existingItem.CachedPrice = cartItem.CachedPrice;
+                existingItem.CachedShopId = cartItem.CachedShopId;
                 existingItem.CachedAt = DateTime.UtcNow;
+
+                _logger.LogInformation("Updated quantity for SKU {SkuId} in cart {CartId}, new quantity: {Quantity}",
+                    cartItem.SkuId, cartItem.CartId, existingItem.Quantity);
             }
             else
             {
                 await _context.CartItems.AddAsync(cartItem, cancellationToken);
+                _logger.LogInformation("Added new item SKU {SkuId} to cart {CartId}", cartItem.SkuId, cartItem.CartId);
             }
 
             await _context.SaveChangesAsync(cancellationToken);
             return existingItem ?? cartItem;
         }
 
-        // MỚI: Update cached info khi nhận ProductUpdatedEvent từ Kafka
+        public async Task UpdateAsync(Cart cart, CancellationToken cancellationToken = default)
+        {
+            cart.UpdatedDate = DateTime.UtcNow;
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<CartItem> UpdateItemQuantityAsync(string cartId, string skuId, int quantity, CancellationToken cancellationToken = default)
+        {
+            var cartItem = await _context.CartItems
+                .FirstOrDefaultAsync(ci => ci.CartId == cartId && ci.SkuId == skuId, cancellationToken);
+
+            if (cartItem == null) return null;
+
+            cartItem.Quantity = quantity;
+            await _context.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("Updated quantity for SKU {SkuId} to {Quantity}", skuId, quantity);
+            return cartItem;
+        }
+
+        public async Task<bool> RemoveItemAsync(string cartId, string skuId, CancellationToken cancellationToken = default)
+        {
+            var cartItem = await _context.CartItems
+                .FirstOrDefaultAsync(ci => ci.CartId == cartId && ci.SkuId == skuId, cancellationToken);
+
+            if (cartItem == null) return false;
+
+            _context.CartItems.Remove(cartItem);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("Removed SKU {SkuId} from cart {CartId}", skuId, cartId);
+            return true;
+        }
+
+        public async Task<bool> ClearCartAsync(string cartId, CancellationToken cancellationToken = default)
+        {
+            var cartItems = await _context.CartItems
+                .Where(ci => ci.CartId == cartId)
+                .ToListAsync(cancellationToken);
+
+            _context.CartItems.RemoveRange(cartItems);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("Cleared {Count} items from cart {CartId}", cartItems.Count, cartId);
+            return true;
+        }
+
+        public async Task<bool> UpdateItemSelectionAsync(string cartId, string skuId, bool isSelected, CancellationToken cancellationToken = default)
+        {
+            var cartItem = await _context.CartItems
+                .FirstOrDefaultAsync(ci => ci.CartId == cartId && ci.SkuId == skuId, cancellationToken);
+
+            if (cartItem == null) return false;
+
+            cartItem.IsSelected = isSelected;
+            await _context.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+
+        public async Task<int> GetCartItemCountAsync(string cartId, CancellationToken cancellationToken = default)
+        {
+            return await _context.CartItems
+                .Where(ci => ci.CartId == cartId)
+                .SumAsync(ci => ci.Quantity, cancellationToken);
+        }
+
         public async Task UpdateCachedProductInfoAsync(string skuId, string productName, string image, double price, string shopId)
         {
             var cartItems = await _context.CartItems
@@ -92,35 +164,6 @@ namespace Infrastructure.Repositories
 
             await _context.SaveChangesAsync();
             _logger.LogInformation("Updated cached product info for SKU {SkuId} in {Count} cart items", skuId, cartItems.Count);
-        }
-
-        public async Task UpdateAsync(Cart cart, CancellationToken cancellationToken = default)
-        {
-            cart.UpdatedDate = DateTime.UtcNow;
-            await _context.SaveChangesAsync(cancellationToken);
-        }
-
-        public async Task<bool> RemoveItemAsync(string cartId, string skuId, CancellationToken cancellationToken = default)
-        {
-            var cartItem = await _context.CartItems
-                .FirstOrDefaultAsync(ci => ci.CartId == cartId && ci.SkuId == skuId, cancellationToken);
-
-            if (cartItem == null) return false;
-
-            _context.CartItems.Remove(cartItem);
-            await _context.SaveChangesAsync(cancellationToken);
-            return true;
-        }
-
-        public async Task<bool> ClearCartAsync(string cartId, CancellationToken cancellationToken = default)
-        {
-            var cartItems = await _context.CartItems
-                .Where(ci => ci.CartId == cartId)
-                .ToListAsync(cancellationToken);
-
-            _context.CartItems.RemoveRange(cartItems);
-            await _context.SaveChangesAsync(cancellationToken);
-            return true;
         }
     }
 

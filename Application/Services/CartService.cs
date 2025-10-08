@@ -4,7 +4,6 @@ using Application.DTOs.Cart;
 using Application.Exceptions;
 using Application.IntegrationEvents.HttpClients.Dtos;
 using Application.IntegrationEvents.HttpClients.Interfaces;
-using Application.IntegrationEvents.MessageBroker.Kafka.Interfaces;
 using Application.IntegrationEvents.Outgoing;
 using Application.Interfaces.Identity;
 using Application.Interfaces.Services;
@@ -20,15 +19,15 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-
+using Application.Interfaces.MessageBroker;
 namespace Application.Services
 {
     public class CartService : ICartService
     {
         private readonly ICartRepository _cartRepository;
-        private readonly IProductServiceClient _productClient; // MỚI: HTTP Client
-        private readonly ICacheService _cache; // MỚI: Redis cache
-        private readonly IEventBus _eventBus; // MỚI: Kafka producer
+        private readonly IProductServiceClient _productClient;
+        private readonly ICacheService _cache;
+        private readonly IEventBus _eventBus;
         private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
         private readonly ILogger<CartService> _logger;
@@ -51,89 +50,13 @@ namespace Application.Services
             _logger = logger;
         }
 
-        public async Task<Result<CartDto>> AddToCartAsync(AddToCartRequest request, CancellationToken cancellationToken = default)
-        {
-            var userProfileId = _currentUserService.UserProfileId;
-            if (string.IsNullOrEmpty(userProfileId))
-                return Result<CartDto>.Unauthorized();
-
-            // MỚI: Gọi Product Service qua HTTP để lấy SKU info
-            SkuDetailDto sku;
-            try
-            {
-                sku = await _productClient.GetSkuByIdAsync(request.SkuId);
-            }
-            catch (ServiceUnavailableException ex)
-            {
-                _logger.LogError(ex, "Product Service unavailable");
-                return Result<CartDto>.Failure("Dịch vụ sản phẩm tạm thời không khả dụng, vui lòng thử lại sau", 503);
-            }
-
-            if (sku == null)
-                return Result<CartDto>.Failure("Sản phẩm không tồn tại", 404);
-
-            if (sku.Stock < request.Quantity)
-                return Result<CartDto>.Failure($"Chỉ còn {sku.Stock} sản phẩm trong kho", 400);
-
-            var cart = await _cartRepository.GetOrCreateByUserProfileIdAsync(userProfileId, cancellationToken);
-
-            // MỚI: Cache product info vào CartItem
-            var cartItem = new CartItem
-            {
-                CartId = cart.Id,
-                SkuId = request.SkuId,
-                Quantity = request.Quantity,
-                IsSelected = true,
-                AddedDate = DateTime.UtcNow,
-                // Cache product data
-                CachedProductName = sku.ProductName,
-                CachedProductImage = sku.ProductImage,
-                CachedPrice = sku.Price,
-                CachedShopId = sku.ShopId,
-                CachedAt = DateTime.UtcNow
-            };
-
-            await _cartRepository.AddItemAsync(cartItem, cancellationToken);
-
-            // MỚI: Publish event to Kafka
-            await _eventBus.PublishAsync(new CartUpdatedEvent
-            {
-                CartId = cart.Id,
-                UserProfileId = userProfileId,
-                TotalItems = cart.Items.Count,
-                SkuIds = cart.Items.Select(i => i.SkuId).ToList()
-            });
-
-            // MỚI: Invalidate cache
-            await _cache.RemoveAsync(CacheKeys.Cart(userProfileId));
-
-            _logger.LogInformation("Added SKU {SkuId} to cart for user {UserId}", request.SkuId, userProfileId);
-
-            return await GetMyCartAsync(cancellationToken);
-        }
-
-        public Task<Result<bool>> BatchUpdateSelectionAsync(BatchUpdateSelectionRequest request, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Result<bool>> ClearCartAsync(CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Result<int>> GetCartItemCountAsync(CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<Result<CartDto>> GetMyCartAsync(CancellationToken cancellationToken = default)
         {
             var userProfileId = _currentUserService.UserProfileId;
             if (string.IsNullOrEmpty(userProfileId))
                 return Result<CartDto>.Unauthorized();
 
-            // MỚI: Try cache first
+            // Try cache first
             var cacheKey = CacheKeys.Cart(userProfileId);
             var cachedCart = await _cache.GetAsync<CartDto>(cacheKey);
 
@@ -152,11 +75,13 @@ namespace Application.Services
                     Id = cart?.Id ?? string.Empty,
                     Items = new List<CartItemDto>(),
                     TotalItems = 0,
-                    TotalPrice = 0
+                    TotalPrice = 0,
+                    SelectedTotalPrice = 0,
+                    ShopGroups = new Dictionary<string, ShopCartDto>()
                 }, 200);
             }
 
-            // MỚI: Check stale cache và refresh nếu cần
+            // Check stale cache and refresh if needed
             var staleItems = cart.Items
                 .Where(i => DateTime.UtcNow - i.CachedAt > TimeSpan.FromMinutes(5))
                 .ToList();
@@ -165,23 +90,30 @@ namespace Application.Services
             {
                 _logger.LogInformation("Refreshing stale cache for {Count} items", staleItems.Count);
 
-                var skuIds = staleItems.Select(i => i.SkuId).ToList();
-                var freshSkus = await _productClient.GetSkusByIdsAsync(skuIds);
-
-                foreach (var item in staleItems)
+                try
                 {
-                    var freshSku = freshSkus.FirstOrDefault(s => s.Id == item.SkuId);
-                    if (freshSku != null)
-                    {
-                        item.CachedProductName = freshSku.ProductName;
-                        item.CachedProductImage = freshSku.ProductImage;
-                        item.CachedPrice = freshSku.Price;
-                        item.CachedShopId = freshSku.ShopId;
-                        item.CachedAt = DateTime.UtcNow;
-                    }
-                }
+                    var skuIds = staleItems.Select(i => i.SkuId).ToList();
+                    var freshSkus = await _productClient.GetSkusByIdsAsync(skuIds);
 
-                await _cartRepository.UpdateAsync(cart, cancellationToken);
+                    foreach (var item in staleItems)
+                    {
+                        var freshSku = freshSkus.FirstOrDefault(s => s.Id == item.SkuId);
+                        if (freshSku != null)
+                        {
+                            item.CachedProductName = freshSku.ProductName;
+                            item.CachedProductImage = freshSku.ProductImage;
+                            item.CachedPrice = freshSku.Price;
+                            item.CachedShopId = freshSku.ShopId;
+                            item.CachedAt = DateTime.UtcNow;
+                        }
+                    }
+
+                    await _cartRepository.UpdateAsync(cart, cancellationToken);
+                }
+                catch (ServiceUnavailableException ex)
+                {
+                    _logger.LogWarning(ex, "Product Service unavailable during cache refresh");
+                }
             }
 
             var cartDto = _mapper.Map<CartDto>(cart);
@@ -199,26 +131,198 @@ namespace Application.Services
                         IsAllSelected = g.All(i => i.IsSelected)
                     });
 
-            // MỚI: Cache for 2 minutes
+            // Cache for 2 minutes
             await _cache.SetAsync(cacheKey, cartDto, TimeSpan.FromMinutes(2));
 
             return Result<CartDto>.Success(cartDto, 200);
         }
 
-        public Task<Result<bool>> RemoveCartItemAsync(string skuId, CancellationToken cancellationToken = default)
+        public async Task<Result<CartDto>> AddToCartAsync(AddToCartRequest request, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var userProfileId = _currentUserService.UserProfileId;
+            if (string.IsNullOrEmpty(userProfileId))
+                return Result<CartDto>.Unauthorized();
+
+            // Get SKU info from Product Service
+            SkuDetailDto sku;
+            try
+            {
+                sku = await _productClient.GetSkuByIdAsync(request.SkuId);
+            }
+            catch (ServiceUnavailableException ex)
+            {
+                _logger.LogError(ex, "Product Service unavailable");
+                return Result<CartDto>.Failure("Dịch vụ sản phẩm tạm thời không khả dụng", 503);
+            }
+
+            if (sku == null)
+                return Result<CartDto>.Failure("Sản phẩm không tồn tại", 404);
+
+            if (sku.Stock < request.Quantity)
+                return Result<CartDto>.Failure($"Chỉ còn {sku.Stock} sản phẩm trong kho", 400);
+
+            var cart = await _cartRepository.GetOrCreateByUserProfileIdAsync(userProfileId, cancellationToken);
+
+            var cartItem = new CartItem
+            {
+                CartId = cart.Id,
+                SkuId = request.SkuId,
+                Quantity = request.Quantity,
+                IsSelected = true,
+                AddedDate = DateTime.UtcNow,
+                CachedProductName = sku.ProductName,
+                CachedProductImage = sku.ProductImage,
+                CachedPrice = sku.Price,
+                CachedShopId = sku.ShopId,
+                CachedAt = DateTime.UtcNow
+            };
+
+            await _cartRepository.AddItemAsync(cartItem, cancellationToken);
+
+            // Publish event to Kafka
+            await _eventBus.PublishAsync(new CartUpdatedEvent
+            {
+                CartId = cart.Id,
+                UserProfileId = userProfileId,
+                TotalItems = cart.Items.Count + 1,
+                SkuIds = cart.Items.Select(i => i.SkuId).Append(request.SkuId).ToList(),
+                UpdatedAt = DateTime.UtcNow
+            });
+
+            // Invalidate cache
+            await _cache.RemoveAsync(CacheKeys.Cart(userProfileId));
+
+            return await GetMyCartAsync(cancellationToken);
         }
 
-        public Task<Result<CartDto>> UpdateCartItemAsync(string skuId, UpdateCartItemRequest request, CancellationToken cancellationToken = default)
+        public async Task<Result<CartDto>> UpdateCartItemAsync(
+            string skuId, UpdateCartItemRequest request, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var userProfileId = _currentUserService.UserProfileId;
+            if (string.IsNullOrEmpty(userProfileId))
+                return Result<CartDto>.Unauthorized();
+
+            var cart = await _cartRepository.GetByUserProfileIdAsync(userProfileId, cancellationToken);
+            if (cart == null)
+                return Result<CartDto>.Failure("Giỏ hàng không tồn tại", 404);
+
+            var updatedItem = await _cartRepository.UpdateItemQuantityAsync(cart.Id, skuId, request.Quantity, cancellationToken);
+            if (updatedItem == null)
+                return Result<CartDto>.Failure("Sản phẩm không có trong giỏ hàng", 404);
+
+            await _cache.RemoveAsync(CacheKeys.Cart(userProfileId));
+
+            return await GetMyCartAsync(cancellationToken);
         }
 
-        public Task<Result<bool>> UpdateItemSelectionAsync(string skuId, UpdateCartItemSelectionRequest request, CancellationToken cancellationToken = default)
+        public async Task<Result<bool>> RemoveCartItemAsync(string skuId, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var userProfileId = _currentUserService.UserProfileId;
+            if (string.IsNullOrEmpty(userProfileId))
+                return Result<bool>.Unauthorized();
+
+            var cart = await _cartRepository.GetByUserProfileIdAsync(userProfileId, cancellationToken);
+            if (cart == null)
+                return Result<bool>.Failure("Giỏ hàng không tồn tại", 404);
+
+            var result = await _cartRepository.RemoveItemAsync(cart.Id, skuId, cancellationToken);
+            if (!result)
+                return Result<bool>.Failure("Sản phẩm không có trong giỏ hàng", 404);
+
+            await _cache.RemoveAsync(CacheKeys.Cart(userProfileId));
+
+            // Publish event
+            await _eventBus.PublishAsync(new CartItemRemovedEvent
+            {
+                CartId = cart.Id,
+                UserProfileId = userProfileId,
+                SkuId = skuId,
+                RemovedAt = DateTime.UtcNow
+            });
+
+            return Result<bool>.Success(true, 200);
         }
-    }
+
+        public async Task<Result<bool>> ClearCartAsync(CancellationToken cancellationToken = default)
+        {
+            var userProfileId = _currentUserService.UserProfileId;
+            if (string.IsNullOrEmpty(userProfileId))
+                return Result<bool>.Unauthorized();
+
+            var cart = await _cartRepository.GetByUserProfileIdAsync(userProfileId, cancellationToken);
+            if (cart == null)
+                return Result<bool>.Failure("Giỏ hàng không tồn tại", 404);
+
+            await _cartRepository.ClearCartAsync(cart.Id, cancellationToken);
+            await _cache.RemoveAsync(CacheKeys.Cart(userProfileId));
+
+            // Publish event
+            await _eventBus.PublishAsync(new CartClearedEvent
+            {
+                CartId = cart.Id,
+                UserProfileId = userProfileId,
+                ClearedAt = DateTime.UtcNow
+            });
+
+            return Result<bool>.Success(true, 200);
+        }
+
+        public async Task<Result<bool>> UpdateItemSelectionAsync(
+            string skuId, UpdateCartItemSelectionRequest request, CancellationToken cancellationToken = default)
+        {
+            var userProfileId = _currentUserService.UserProfileId;
+            if (string.IsNullOrEmpty(userProfileId))
+                return Result<bool>.Unauthorized();
+
+            var cart = await _cartRepository.GetByUserProfileIdAsync(userProfileId, cancellationToken);
+            if (cart == null)
+                return Result<bool>.Failure("Giỏ hàng không tồn tại", 404);
+
+            var result = await _cartRepository.UpdateItemSelectionAsync(cart.Id, skuId, request.IsSelected, cancellationToken);
+            if (!result)
+                return Result<bool>.Failure("Sản phẩm không có trong giỏ hàng", 404);
+
+            await _cache.RemoveAsync(CacheKeys.Cart(userProfileId));
+
+            return Result<bool>.Success(true, 200);
+        }
+
+        public async Task<Result<bool>> BatchUpdateSelectionAsync(
+            BatchUpdateSelectionRequest request, CancellationToken cancellationToken = default)
+        {
+            var userProfileId = _currentUserService.UserProfileId;
+            if (string.IsNullOrEmpty(userProfileId))
+                return Result<bool>.Unauthorized();
+
+            var cart = await _cartRepository.GetByUserProfileIdAsync(userProfileId, cancellationToken);
+            if (cart == null)
+                return Result<bool>.Failure("Giỏ hàng không tồn tại", 404);
+
+            foreach (var skuId in request.SkuIds)
+            {
+                await _cartRepository.UpdateItemSelectionAsync(cart.Id, skuId, request.IsSelected, cancellationToken);
+            }
+
+            await _cache.RemoveAsync(CacheKeys.Cart(userProfileId));
+
+            return Result<bool>.Success(true, 200);
+        }
+
+        public async Task<Result<int>> GetCartItemCountAsync(CancellationToken cancellationToken = default)
+        {
+            var userProfileId = _currentUserService.UserProfileId;
+            if (string.IsNullOrEmpty(userProfileId))
+                return Result<int>.Unauthorized();
+
+            var cart = await _cartRepository.GetByUserProfileIdAsync(userProfileId, cancellationToken);
+            if (cart == null)
+                return Result<int>.Success(0, 200);
+
+            var count = await _cartRepository.GetCartItemCountAsync(cart.Id, cancellationToken);
+
+            return Result<int>.Success(count, 200);
+        }
+    
+}
 }
 

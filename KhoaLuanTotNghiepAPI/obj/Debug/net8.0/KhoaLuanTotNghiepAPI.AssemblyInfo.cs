@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("KhoaLuanTotNghiepAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1e0163f4e641cffb8d2e30477bfd0b58f9bc5586")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3f97556aaa0f0b7e1d7005fdeaef79dae2d7d5a7")]
 [assembly: System.Reflection.AssemblyProductAttribute("KhoaLuanTotNghiepAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KhoaLuanTotNghiepAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

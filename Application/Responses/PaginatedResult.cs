@@ -11,7 +11,7 @@ namespace Application.Responses
     {
         public int? CurrentPage { get; set; }
         public int TotalPages { get; set; }
-        public int TotalCount { get; set; }
+        public int totalElements { get; set; }
         public int? PageSize { get; set; }
 
         public bool HasPreviousPage => CurrentPage > 1;
@@ -22,7 +22,7 @@ namespace Application.Responses
             CurrentPage = pCurrentPage;
             PageSize = pPageSize;
             TotalPages = (int)Math.Ceiling(pCount / (double)pPageSize);
-            TotalCount = pCount;
+            totalElements = pCount;
         }
 
     }
@@ -35,7 +35,7 @@ namespace Application.Responses
         public PaginatedResult(bool pSucceeded, int pCode, T pData = default, List<string> pMessages = null,
             int pCount = 0, int? pCurrentPage = 1, int? pPageSize = 30)
         {
-            Data = pData;
+            result = pData;
             Succeeded = pSucceeded;
             Messages = pMessages;
             Code = pCode;

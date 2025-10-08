@@ -1,5 +1,7 @@
-﻿using Domain.Common;
+﻿using Application.Interfaces.Identity;
+using Domain.Common;
 using Domain.Entities;
+using Infrastructure.Interceptors;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,8 +12,13 @@ namespace Infrastructure
 {
     public class ShopDbContext: DbContext
     {
-        //private readonly ICurrentUserService _currentUserService;
+        private readonly EntitySaveChangesInterceptor _saveChangesInterceptor;
+        public ShopDbContext(DbContextOptions options    ,    EntitySaveChangesInterceptor saveChangesInterceptor)
 
+            : base(options)
+        {
+            _saveChangesInterceptor = saveChangesInterceptor;
+        }
         // User & Auth
         public DbSet<Shop> Shops { get; set; }
         public DbSet<WalletShop> WalletShops { get; set; }
@@ -37,7 +44,6 @@ namespace Infrastructure
 
         //public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         //{
-        //    // Auto-set audit fields
         //    foreach (var entry in ChangeTracker.Entries<BaseAuditableEntity>())
         //    {
         //        if (entry.State == EntityState.Added)

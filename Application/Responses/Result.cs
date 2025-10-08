@@ -9,7 +9,7 @@ namespace Application.Responses
 {
     public class Result<T> : IResult<T>
     {
-        public T Data { get; set; }
+        public T result { get; set; }
 
         public List<string> Messages { get; set; } = new List<string>();
 
@@ -34,7 +34,7 @@ namespace Application.Responses
             return new Result<T>
             {
                 Succeeded = true,
-                Data = pData,
+                result = pData,
                 Code = pCode
             };
         }
