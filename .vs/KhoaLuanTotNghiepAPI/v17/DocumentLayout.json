@@ -3,8 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{19BC7C42-14F1-4C54-A291-439A69620F03}|Application\\Application.csproj|c:\\users\\chuon\\desktop\\khoaluan\\khoaluantotnghiepapi\\application\\responses\\paginatedresult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{19BC7C42-14F1-4C54-A291-439A69620F03}|Application\\Application.csproj|solutionrelative:application\\responses\\paginatedresult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{19BC7C42-14F1-4C54-A291-439A69620F03}|Application\\Application.csproj|c:\\users\\chuon\\desktop\\khoaluan\\khoaluantotnghiepapi\\application\\constants\\policytypes.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{19BC7C42-14F1-4C54-A291-439A69620F03}|Application\\Application.csproj|solutionrelative:application\\constants\\policytypes.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{30A0D5B5-03C5-484A-B45D-FCF4721398EA}|Infrastructure\\Infrastructure.csproj|c:\\users\\chuon\\desktop\\khoaluan\\khoaluantotnghiepapi\\infrastructure\\shopdbcontextfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{30A0D5B5-03C5-484A-B45D-FCF4721398EA}|Infrastructure\\Infrastructure.csproj|solutionrelative:infrastructure\\shopdbcontextfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{30A0D5B5-03C5-484A-B45D-FCF4721398EA}|Infrastructure\\Infrastructure.csproj|c:\\users\\chuon\\desktop\\khoaluan\\khoaluantotnghiepapi\\infrastructure\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{30A0D5B5-03C5-484A-B45D-FCF4721398EA}|Infrastructure\\Infrastructure.csproj|solutionrelative:infrastructure\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -51,14 +59,40 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "PaginatedResult.cs",
-              "DocumentMoniker": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Application\\Responses\\PaginatedResult.cs",
-              "RelativeDocumentMoniker": "Application\\Responses\\PaginatedResult.cs",
-              "ToolTip": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Application\\Responses\\PaginatedResult.cs",
-              "RelativeToolTip": "Application\\Responses\\PaginatedResult.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAAA0AAAAgAAAAAAAAAA==",
+              "Title": "PolicyTypes.cs",
+              "DocumentMoniker": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Application\\Constants\\PolicyTypes.cs",
+              "RelativeDocumentMoniker": "Application\\Constants\\PolicyTypes.cs",
+              "ToolTip": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Application\\Constants\\PolicyTypes.cs",
+              "RelativeToolTip": "Application\\Constants\\PolicyTypes.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-08T01:38:02.149Z",
+              "WhenOpened": "2025-10-08T12:44:53.2Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ShopDbContextFactory.cs",
+              "DocumentMoniker": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Infrastructure\\ShopDbContextFactory.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\ShopDbContextFactory.cs",
+              "ToolTip": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Infrastructure\\ShopDbContextFactory.cs",
+              "RelativeToolTip": "Infrastructure\\ShopDbContextFactory.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAABjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-08T12:40:43.12Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Infrastructure\\Program.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\Program.cs",
+              "ToolTip": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Infrastructure\\Program.cs",
+              "RelativeToolTip": "Infrastructure\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-08T12:35:07.126Z",
               "EditorCaption": ""
             }
           ]

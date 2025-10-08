@@ -1,37 +1,34 @@
 ﻿
 
-using Application.Services;
-using Application.IntegrationEvents.Incoming;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Polly;
-using Polly.Extensions.Http;
-using Infrastructure.Repositories;
+using Application.Cache;
 using Application.Cache.Interfaces;
-using System.Text.Json.Serialization;
-using Application.Interfaces.Services;
-using Application.Interfaces.Identity;
-using Infrastructure;
-using Infrastructure.IntegrationEvents;
-using Infrastructure.IntegrationEvents.MessageBroker;
-using Application.IntegrationEvents.HttpClients.Interfaces;
 using Application.IntegrationEvents.HttpClients;
 using Application.IntegrationEvents.HttpClients.Dtos;
-
-
-using Infrastructure.IntegrationEvents.MessageBroker.EventHandlers;
-using Infrastructure.Configurations ;
-using Infrastructure.IntegrationEvents.MessageBroker.Kafka.Interfaces;
-using Infrastructure.IntegrationEvents.MessageBroker.Kafka;
-
-
-
-using Application.Cache;
-using KhoaLuanTotNghiepAPI.Services;
+using Application.IntegrationEvents.HttpClients.Interfaces;
+using Application.IntegrationEvents.Incoming;
+using Application.Interfaces.Identity;
 using Application.Interfaces.MessageBroker;
+using Application.Interfaces.Services;
+using Application.Services;
+using Infrastructure;
+using Infrastructure.Configurations ;
+using Infrastructure.IntegrationEvents;
+using Infrastructure.IntegrationEvents.MessageBroker;
+using Infrastructure.IntegrationEvents.MessageBroker.EventHandlers;
+using Infrastructure.IntegrationEvents.MessageBroker.Kafka;
+using Infrastructure.IntegrationEvents.MessageBroker.Kafka.Interfaces;
+using Infrastructure.Interceptors;
+using Infrastructure.Repositories;
+using KhoaLuanTotNghiepAPI.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Polly;
+using Polly.Extensions.Http;
+using System.Text;
+using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // ============ SERVICES CONFIGURATION ============
@@ -88,8 +85,9 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // PostgreSQL Database
-builder.Services.AddDbContext<ShopDbContext>(options =>
+builder.Services.AddDbContext<ShopDbContext>((serviceProvider,options) =>
 {
+    var interceptor = serviceProvider.GetRequiredService<EntitySaveChangesInterceptor>();
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         npgsqlOptions =>
@@ -107,6 +105,8 @@ builder.Services.AddDbContext<ShopDbContext>(options =>
         options.EnableSensitiveDataLogging();
         options.EnableDetailedErrors();
     }
+
+    options.AddInterceptors(interceptor);
 });
 
 

@@ -11,6 +11,7 @@
           "Application": "1.0.0",
           "Domain": "1.0.0",
           "Microsoft.EntityFrameworkCore.Design": "8.0.1",
+          "Microsoft.EntityFrameworkCore.Tools": "8.0.1",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.2",
           "Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite": "8.0.2"
         },
@@ -544,6 +545,11 @@
             "assemblyVersion": "8.0.2.0",
             "fileVersion": "8.0.224.6803"
           }
+        }
+      },
+      "Microsoft.EntityFrameworkCore.Tools/8.0.1": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Design": "8.0.1"
         }
       },
       "Microsoft.Extensions.Caching.Abstractions/8.0.0": {
@@ -1468,6 +1474,13 @@
       "sha512": "sha512-NoGfcq2OPw0z8XAPf74YFwGlTKjedWdsIEJqq4SvKcPjcu+B+/XDDNrDRxTvILfz4Ug8POSF49s1jz1JvUqTAg==",
       "path": "microsoft.entityframeworkcore.relational/8.0.2",
       "hashPath": "microsoft.entityframeworkcore.relational.8.0.2.nupkg.sha512"
+    },
+    "Microsoft.EntityFrameworkCore.Tools/8.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lpcKYz8n5EBmURkll0XrL+ip1MY7igTDaWQmEiLWEpKDfMjbDWsKKsXaphqxYjI8MshahUUBmWy/SO38oNNEfw==",
+      "path": "microsoft.entityframeworkcore.tools/8.0.1",
+      "hashPath": "microsoft.entityframeworkcore.tools.8.0.1.nupkg.sha512"
     },
     "Microsoft.Extensions.Caching.Abstractions/8.0.0": {
       "type": "package",

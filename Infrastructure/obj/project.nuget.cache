@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "foqIpWl96vU=",
+  "dgSpecHash": "+DNVbTBmZCQ=",
   "success": true,
   "projectFilePath": "C:\\Users\\chuon\\Desktop\\KhoaLuan\\KhoaLuanTotNghiepAPI\\Infrastructure\\Infrastructure.csproj",
   "expectedPackageFiles": [
@@ -28,6 +28,7 @@
     "C:\\Users\\chuon\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\8.0.2\\microsoft.entityframeworkcore.analyzers.8.0.2.nupkg.sha512",
     "C:\\Users\\chuon\\.nuget\\packages\\microsoft.entityframeworkcore.design\\8.0.1\\microsoft.entityframeworkcore.design.8.0.1.nupkg.sha512",
     "C:\\Users\\chuon\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\8.0.2\\microsoft.entityframeworkcore.relational.8.0.2.nupkg.sha512",
+    "C:\\Users\\chuon\\.nuget\\packages\\microsoft.entityframeworkcore.tools\\8.0.1\\microsoft.entityframeworkcore.tools.8.0.1.nupkg.sha512",
     "C:\\Users\\chuon\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\8.0.0\\microsoft.extensions.caching.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\chuon\\.nuget\\packages\\microsoft.extensions.caching.memory\\8.0.0\\microsoft.extensions.caching.memory.8.0.0.nupkg.sha512",
     "C:\\Users\\chuon\\.nuget\\packages\\microsoft.extensions.caching.stackexchangeredis\\8.0.2\\microsoft.extensions.caching.stackexchangeredis.8.0.2.nupkg.sha512",

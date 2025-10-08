@@ -1,5 +1,4 @@
-﻿using Application.Cache;
-using Application.Cache.Interfaces;
+﻿using Application.Cache.Interfaces;
 using Application.DTOs.Cart;
 using Application.Exceptions;
 using Application.IntegrationEvents.HttpClients.Dtos;
@@ -20,6 +19,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Application.Interfaces.MessageBroker;
+using Application.Constants;
 namespace Application.Services
 {
     public class CartService : ICartService

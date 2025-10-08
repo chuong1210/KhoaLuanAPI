@@ -12,8 +12,8 @@ namespace Infrastructure
 {
     public class ShopDbContext: DbContext
     {
-        private readonly EntitySaveChangesInterceptor _saveChangesInterceptor;
-        public ShopDbContext(DbContextOptions options    ,    EntitySaveChangesInterceptor saveChangesInterceptor)
+        private readonly EntitySaveChangesInterceptor? _saveChangesInterceptor;
+        public ShopDbContext(DbContextOptions options    ,    EntitySaveChangesInterceptor? saveChangesInterceptor=null)
 
             : base(options)
         {
@@ -27,6 +27,8 @@ namespace Infrastructure
         public DbSet<Follow> Follows { get; set; }
         public DbSet<Banner> Banners { get; set; }
         public DbSet<Cart> Carts { get; set; }
+        public DbSet<Policy> Policies { get; set; }
+
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<ProgressTransfer> ProgressTransfers { get; set; }
         public DbSet<ClientTransfer> ClientTransfers { get; set; }

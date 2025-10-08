@@ -1,5 +1,4 @@
-﻿using Application.Cache;
-using Application.Cache.Interfaces;
+﻿using Application.Cache.Interfaces;
 using Application.DTOs;
 using Application.DTOs.Shop;
 using Application.Exceptions;
@@ -18,6 +17,7 @@ using System.Linq;
 using System.Text;
 using Application.Interfaces.MessageBroker;
 using System.Threading.Tasks;
+using Application.Constants;
 namespace Application.Services
 {
   

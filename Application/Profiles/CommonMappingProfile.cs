@@ -1,7 +1,7 @@
 ﻿using Application.DTOs.Banner;
-using Application.DTOs.Shop;
 using Application.DTOs.Cart;
-
+using Application.DTOs.Policy;
+using Application.DTOs.Shop;
 using Application.DTOs.Transfer;
 using AutoMapper;
 using Domain.Entities;
@@ -57,7 +57,19 @@ namespace Application.Profiles
                .ForMember(d => d.ShopGroups, opt => opt.Ignore());
 
             CreateMap<CartItem, CartItemDto>();
-      
+
+            CreateMap<Policy, PolicyDto>();
+
+            CreateMap<Policy, PolicySummaryDto>();
+
+            CreateMap<CreatePolicyRequest, Policy>()
+                .ForMember(d => d.Id, opt => opt.MapFrom(s => Guid.NewGuid().ToString()))
+                .ForMember(d => d.IsActive, opt => opt.MapFrom(s => false))
+                .ForMember(d => d.Version, opt => opt.Ignore());
+
+            CreateMap<UpdatePolicyRequest, Policy>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
         }
     }
     }
